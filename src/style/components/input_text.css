@@ -1,0 +1,22 @@
+.input-text {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+}
+
+@media only screen and (max-width: 480px) {
+  .input-text {
+    max-width: 100%
+  }
+}
+
+.input label {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.input-text input{
+  height: 30px;
+  border-radius: 3px;
+  border: 1px solid black;
+}

@@ -1,0 +1,22 @@
+@media only screen and (min-width: 768px)
+{
+  .content_center
+  {
+      width: 70%;
+      margin: auto;
+  }
+}
+
+
+@media only screen and (max-width: 767px)
+{
+  .content_center
+  {
+
+  }
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+

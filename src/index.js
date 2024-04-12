@@ -1,16 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './style/style.css';
-import App from './App';
-import Navbar from './components/Navbar'
+import MainPage from "./pages/main_page"
+import Navbar from './components/navbar'
 
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import SignupPage from './pages/signup_page';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <MainPage />,
+  },
+  {
+    path: "/signup",
+    element: <SignupPage/>
   }
 ]);
 
