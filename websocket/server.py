@@ -19,6 +19,7 @@ async def register(websocket):
     try:
         await websocket.wait_closed()
     finally:
+        print("Someone disconnected")
         CONNECTIONS.remove(websocket)
 
     
@@ -32,7 +33,7 @@ async def show_time():
 
 
 async def main():
-    async with websockets.serve(register, "77.37.86.225", 8001):
+    async with websockets.serve(register, "localhost", 8001):
         await show_time()
 
 
