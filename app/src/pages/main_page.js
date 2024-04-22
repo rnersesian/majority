@@ -1,11 +1,20 @@
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef, useTransition } from "react"
 import {io} from "socket.io-client"
 
 const truc = true
 
+const send_answer = (websocket, answer) =>
+{
+  websocket.send(JSON.stringify({
+    "type": "answer",
+    "answer": answer
+  }))
+}
+
 const MainPage = () => {
 
-  const [time, setTime] = useState("")
+  // const [time, setTime] = useState("")
+  const [question, setQuestion] = useState(null)
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -18,13 +27,19 @@ const MainPage = () => {
         console.log('WebSocket connected');
         // Send "hello" message once connected
         socketRef.current.send(JSON.stringify({
-          "player_id": "test",
+          "type": "init",
           "player_name": "Robert"
         }));
       };
 
       socketRef.current.onmessage = (event) => {
-        setTime(event.data);
+        let data = JSON.parse(event.data)
+        switch(data.type)
+        {
+          case "question":
+            setQuestion(data.question)
+            break;
+        }
       };
 
       socketRef.current.onclose = () => {
@@ -36,8 +51,12 @@ const MainPage = () => {
 
   return (
   <>
-    <h1>Main Page</h1>
-    <h3>{time}</h3>
+    <h1>QUIZZ</h1>
+    <h3>{question ? question.label: ""}</h3>
+
+    {question ?  question.answers.map(q => {
+      return <input type="button" key={q} value={q} onClick={() => send_answer(socketRef.current, q)}/>
+    }): ""}
   </>
   )
 }

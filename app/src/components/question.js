@@ -1,7 +1,7 @@
 
 
 
-const Question = () => {
+const Question = ({props}) => {
   return(
     <div className="question">
       What is your name ?
