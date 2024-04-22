@@ -3,9 +3,9 @@ const Navbar = () => {
   return (
     <div className="topnav">
       <div className="topnav_left">
-        <a href="/">Home</a>
-        <a href="#news">News</a>
-        <a href="#contact">Contact</a>
+      <a href="/">Home</a>
+        <a href="/solo">Solo</a>
+        <a href="/multi">Multi Player</a>
         <a href="#about">About</a>
       </div>
       <div className="topnav_right">

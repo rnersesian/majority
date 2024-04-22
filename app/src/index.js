@@ -7,15 +7,20 @@ import Navbar from './components/navbar'
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import SignupPage from './pages/signup_page';
+import MultiPlayerQuizzPage from "./pages/multi_quizz_page"
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/solo",
     element: <MainPage />,
   },
   {
     path: "/signup",
     element: <SignupPage/>
+  },
+  {
+    path: "/multi",
+    element: <MultiPlayerQuizzPage/>
   }
 ]);
 
