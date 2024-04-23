@@ -27,16 +27,17 @@ QUESTIONS = [
 async def register(websocket):
     message = await websocket.recv()
     event = json.loads(message)
-    assert event['type'] == 'init'
+    print(event)
 
-    CONNECTIONS.add(websocket)
+    if event['type'] == 'init':
+        CONNECTIONS.add(websocket)
 
-    await start_quizz(websocket)
+        await start_quizz(websocket)
 
-    try:
-        await websocket.wait_closed()
-    finally:
-        CONNECTIONS.remove(websocket)
+        try:
+            await websocket.wait_closed()
+        finally:
+            CONNECTIONS.remove(websocket)
 
 
 async def start_quizz(websocket):

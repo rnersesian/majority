@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import InputForm from "../components/input_form"
 import InputText from "../components/input_text"
 
@@ -7,10 +7,28 @@ const MultiQuizzPage = () =>
     const [username, setUsername] = useState('')
     const [joined, setJoined] = useState(false)
     
+    const socketRef = useRef(null)
+
+    
     const join = () => {
         if (username != "")
         {
             setJoined(true)
+            if (socketRef.current == null)
+            {
+                socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_ADDRESS)
+                socketRef.current.onopen = async () => {
+                    console.log('Website is connected to websocket', process.env.REACT_APP_WEBSOCKET_ADDRESS)
+                    await socketRef.current.send(JSON.stringify({
+                        "type": "connect",
+                        "player_name": username
+                    }))
+                }
+            }
+
+
+        } else {
+            alert("Please enter a username")
         }
     }
 
@@ -27,8 +45,8 @@ const MultiQuizzPage = () =>
             </div>
             
         )
-    } else {
-        console.log("hey")
+    } else
+    {
         return (
             <div>Hello {username}</div>
         )

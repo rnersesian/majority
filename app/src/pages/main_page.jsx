@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef, useTransition } from "react"
-import {io} from "socket.io-client"
 
-const truc = true
 
 const send_answer = (websocket, answer) =>
 {
