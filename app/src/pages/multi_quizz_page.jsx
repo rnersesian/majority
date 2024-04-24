@@ -9,7 +9,7 @@ const MultiQuizzPage = () =>
     
     const socketRef = useRef(null)
 
-    
+    // Make sure username is not empty before connecting to the server
     const join = () => {
         if (username != "")
         {
