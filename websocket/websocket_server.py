@@ -1,76 +1,77 @@
-import asyncio, websockets, secrets
-from ws_event import WsEvent, send_error, send_event, Events
+import asyncio, websockets, secrets, json
+from typing import List, Type
+from ws_event import WsEvent, send_error, Events
+from player import Player
+
 
 
 class WebSocketServer():
 
     def __init__(self, host="localhost", port=8001) -> None:
         self.rooms = []
-        self.connected = []
+        self.connected: List[Player] = []
         self.host = host
         self.port = port
 
 
-    def remove_connected(self, player_name):
+    def remove_connected(self, player: Player):
         """Remove user from connected players
         
         Keyword arguments:
-        player_name -- Name of the player (unique)
+        player: Player -- player object
         Return: None
         """
-        self.connected = list(filter(lambda x: x["player_name"] != player_name, self.connected))
+        print(f">>> Player disconnected : {player.name}")
+        self.connected = list(filter(lambda x: x.id != player.id, self.connected))
 
 
-    def add_connected(self, player_name, websocket):
+    def add_connected(self, player: Player):
         """Add user to the list of connected players
         
         Keyword arguments:
-        player_name -- Name of the player
-        websocket   -- Websocket to communicate with the said player
+        player: Player -- player object
+        Return: None
+        """
+        print(f">>> New player connected : {player.name}")
+        self.connected.append(player)
+
+    
+    def broadcast(self, player_list: List[Player], event: WsEvent):
+        """ Broadcast an event to a list of players
+        
+        Keyword arguments:
+        player_list : Player    -- List of Player to broadast to
+        event       : WsEvent   -- Event to broadcast
         Return: None
         """
         
-        self.connected.append({
-            "player_name": player_name,
-            "websocket": websocket
-        })
+        for player in player_list:
+            asyncio.create_task(player.send(event))
 
 
-    def get_player_websocket(self, player_name):
-        """ Get a websocket from a unique player_name
-        
-        Keyword arguments:
-        player_name -- name of a player (unique)
-        Return: Websocket
-        """ 
-        return list(filter(lambda x: x['player_name'] == player_name, self.connected))[0]['websocket']
-
-
-    async def show_rooms(self, websocket, player_name):
+    async def show_rooms(self, player: Player):
         """Send a list of available rooms to the user
         
         Keyword arguments:
         websocket -- Websocket to send rooms to
         Return: None
         """
-        await websocket.send(WsEvent("show_rooms", {"rooms": self.rooms}).to_str)
+        await player.send(Events.SHOW_ROOMS, {"rooms": self.rooms})
 
         # Listening to client
-        async for message in websocket:
+        async for message in player.websocket:
             try:
                 event = WsEvent.from_json(message)
 
                 if event.type == Events.CREATE_ROOM:
-                    await send_event(websocket, Events.MESSAGE,{'message': 'You are creating a room'})
+                    await player.send(Events.MESSAGE, {'message': 'You are creating a room'})
 
                 elif event.type == Events.JOIN_ROOM:
-                    await send_event(websocket, Events.MESSAGE, {'message': 'You are joining a room'})
-
-                print(self.get_player_websocket(player_name))
+                    await player.send(Events.MESSAGE, {'message': 'You are joining a room'})
 
             except Exception as e:
                 print(e)
-                await send_error(websocket, "Invalid Action")
+                await player.send_error("Invalid Action")
 
 
     async def register(self, websocket):
@@ -83,19 +84,21 @@ class WebSocketServer():
         async for message in websocket:
             try:
                 event = WsEvent.from_json(message)
-                player_name = event["data"]["player_name"]
-                self.connected.append({
-                    "player_name": player_name,
-                    "websocket": websocket
-                })
+
             except Exception as e:
                 print("CONNECTION ERROR :", e)
                 await send_error(websocket, 'Something went wrong')
                 continue
             
             if event.type == Events.CONNECT:
-                await self.show_rooms(websocket, player_name)
-                self.remove_connected(player_name)
+                player_name = event["data"]["player_name"]
+                player = Player(websocket, player_name)
+                self.add_connected(player)
+
+                await self.show_rooms(player)
+
+                await player.websocket.wait_closed()
+                self.remove_connected(player)
 
             else:
                 await send_error(websocket, 'Recieved unhandled event type')

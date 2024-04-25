@@ -64,3 +64,4 @@ class Events():
     SEND_QUESTIONS  = "send_questions"
     SEND_ANSWER     = "send_answer"
     SEND_SCORE      = "send_score"
+    ERROR           = "error"
