@@ -6,14 +6,16 @@ class Player():
     def __init__(self, websocket, player_name) -> None:
         self.websocket = websocket
         self.name = player_name
-        self.id = secrets.token_urlsafe(12)
+        self.id = "player_" + secrets.token_urlsafe(12)
 
 
     async def send(self, event_type: str, data: dict):
         try:
             event = WsEvent(event_type=event_type, data=data).to_str
             await self.websocket.send(event)
-        except:
+            print(f">>> Package sent to player '{self.name}' :\n{event}")
+        except Exception as e:
+            print(e)
             print(f"ERROR : Could not send event to player :\n\t{self}")
 
 
@@ -21,6 +23,7 @@ class Player():
         try:
             event = WsEvent(event_type=Events.ERROR, data={"message": message}).to_str
             await self.websocket.send(event)
+            print(f">>> Error sent to player '{self.name}' : {message}")
         except:
             print(f"ERROR : Could not send error event to player :\n\t{self}")
 
@@ -28,7 +31,9 @@ class Player():
     async def recv(self) -> WsEvent:
         try:
             message = await self.websocket.recv()
-            return WsEvent.from_json(message)
+            event = WsEvent.from_json(message)
+            print(f">>> Package recieved from player '{self.name}' :\n{event.to_str}")
+            return event
         except:
             print(f"Coulnd't recieve event from player '{self.name}'")
 
