@@ -18,8 +18,9 @@ class Room():
         print(f">>> Adding player '{player.name}' to room '{self.name}'")
         try:
             self.player_list.append(player)
+            print(self.player_list_json)
             await self.broadcast(
-                WsEvent(Events.REFRESH_PLAYER_LIST, {"player_list", self.player_list_json})
+                WsEvent(Events.REFRESH_PLAYER_LIST, {"player_list": self.player_list_json})
             )
         except Exception as e:
             print(">>> ADD PLAYER ERROR :\n", e)
@@ -40,7 +41,7 @@ class Room():
     async def broadcast(self, event: WsEvent):
         try:
             for player in self.player_list:
-                asyncio.create_task(player.send(event))
+                asyncio.create_task(player.send(event.type, event.data))
         except Exception as e:
             print(">>> BROADCAST ERROR :\n", e)
 
