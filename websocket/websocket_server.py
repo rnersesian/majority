@@ -1,5 +1,5 @@
-import asyncio, websockets, secrets, json
-from typing import List, Type
+import asyncio, websockets
+from typing import List
 from ws_event import WsEvent, send_error, Events
 from player import Player
 
