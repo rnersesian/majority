@@ -1,38 +1,56 @@
 import React, { useEffect, useRef, useState } from "react"
 import InputForm from "../components/input_form"
 import InputText from "../components/input_text"
+import { WsEvents, sendRequests} from "../ws_requests"
+
 
 const MultiQuizzPage = () =>
 {
     const [username, setUsername] = useState('')
-    const [joined, setJoined] = useState(false)
+    const [connected, setConnected] = useState(false)
+    const [rooms, setRooms] = useState([])
+    const [roomName, setRoomName] = useState("")
     
     const socketRef = useRef(null)
 
+
+    // Managing all Websocket event types
+    const setup_websocket = () => {
+        let websocket = new WebSocket(process.env.REACT_APP_WEBSOCKET_ADDRESS)
+
+        websocket.onopen = async () => {
+            console.log('Website is connected to websocket', process.env.REACT_APP_WEBSOCKET_ADDRESS)
+            await sendRequests(websocket, WsEvents.CONNECT, {"player_name": username})
+        }
+
+        websocket.addEventListener("message", (ws_event) => {
+            let event = JSON.parse(ws_event.data)
+            console.log(event)
+            switch (event.type)
+            {
+                case WsEvents.SHOW_ROOMS:
+                    setRooms(event.data.rooms)
+                    break
+            }
+        })
+
+        return websocket
+    }
+
+
     // Make sure username is not empty before connecting to the server
     const join = () => {
-        if (username != "")
+        if (username !== "")
         {
-            setJoined(true)
-            if (socketRef.current == null)
-            {
-                socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_ADDRESS)
-                socketRef.current.onopen = async () => {
-                    console.log('Website is connected to websocket', process.env.REACT_APP_WEBSOCKET_ADDRESS)
-                    await socketRef.current.send(JSON.stringify({
-                        "type": "connect",
-                        "player_name": username
-                    }))
-                }
-            }
-
-
+            setConnected(true)
+            if (socketRef.current == null) socketRef.current = setup_websocket()
         } else {
             alert("Please enter a username")
         }
     }
 
-    if (!joined)
+    // Return username form if not connected already
+    if (!connected)
     {
         return (
             <div className="main-content">
@@ -45,14 +63,32 @@ const MultiQuizzPage = () =>
             </div>
             
         )
-    } else
-    {
-        return (
-            <div>Hello {username}</div>
-        )
-    }
+    } 
+
+    return (
+        <div className="main-content">
+            <h3>User : {username}</h3>
+            <div>
+                <InputText type="text" label="Room Name" id="room_name" value={roomName}
+                onChange={(event) => {setRoomName(event.target.value)}} />
+                <button className="submit-button" onClick={() =>{
+                    sendRequests(socketRef.current, WsEvents.CREATE_ROOM, {})
+                }}>Create Room</button>
+            </div>
+            <h2>Rooms</h2>
+            {rooms.length === 0 ?
+                <div>No Available room</div> :
+                <ul>
+                    {rooms.map(r => {return <li>{r.room_name}</li>})}
+                </ul>
+            }
+
+                <button className="submit-button" onClick={() =>{
+                    sendRequests(socketRef.current, WsEvents.SHOW_ROOMS, {})
+                }}>Refresh</button>
+        </div>
+    )
 
     
 }
-
 export default MultiQuizzPage

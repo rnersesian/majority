@@ -18,7 +18,6 @@ class Room():
         print(f">>> Adding player '{player.name}' to room '{self.name}'")
         try:
             self.player_list.append(player)
-            print(self.player_list_json)
             await self.broadcast(
                 WsEvent(Events.REFRESH_PLAYER_LIST, {"player_list": self.player_list_json})
             )
@@ -29,13 +28,10 @@ class Room():
     
     async def remove_player(self, player: Player) -> None:
         self.player_list = list(filter(lambda x: x.id != player.id, self.player_list))
-        if self.player_list > 0:
-            print(self.player_list_json)
+        if self.player_list.__len__() > 0:
             await self.broadcast(
-                # TODO : fix player list broadcast
                 WsEvent(Events.REFRESH_PLAYER_LIST,{"player_list", self.player_list_json})
             )
-
 
 
     async def broadcast(self, event: WsEvent):
@@ -45,13 +41,11 @@ class Room():
         except Exception as e:
             print(">>> BROADCAST ERROR :\n", e)
 
+
     @property
     def player_list_json(self):
         return [{
             "player_name": player.name,
             "player_id": player.id
         } for player in self.player_list]
-    
-
-
     

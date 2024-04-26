@@ -126,7 +126,7 @@ class WebSocketServer():
                 await player.send_error("Invalid Action")
 
 
-    def handle_disconnect(self, player):
+    async def handle_disconnect(self, player):
         # Check if player has joined any room
         self.remove_connected(player)
         joined_rooms = list(filter(lambda r: player in r.player_list, self.rooms))
@@ -134,7 +134,7 @@ class WebSocketServer():
         # Remove player from all joined rooms
         for room in joined_rooms:
             print(f">>> Removing player '{player.name}' from room '{room.name}'")
-            room.remove_player(player)
+            await room.remove_player(player)
             if room.player_list.__len__() == 0:
                 self.rooms.remove(room)
         
@@ -168,7 +168,10 @@ class WebSocketServer():
                 await self.show_rooms(player)
 
                 await player.websocket.wait_closed()
-                self.handle_disconnect(player)
+                await self.handle_disconnect(player)
+
+            if event.type == Events.SHOW_ROOMS:
+                player.send(Events.SHOW_ROOMS, {"rooms": self.room_list_json})
 
             else:
                 await send_error(websocket, 'Recieved unhandled event type')
