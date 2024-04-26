@@ -3,6 +3,7 @@ from typing import List
 from ws_event import WsEvent, send_error, Events
 from player import Player
 from room import Room
+from utils import log
 
 
 
@@ -22,7 +23,7 @@ class WebSocketServer():
         player: Player -- player object
         Return: None
         """
-        print(f">>> Player disconnected : {player.name}")
+        log(f"Player disconnected : '{player.name}'")
         self.connected = list(filter(lambda x: x.id != player.id, self.connected))
 
 
@@ -33,7 +34,7 @@ class WebSocketServer():
         player: Player -- player object
         Return: None
         """
-        print(f">>> New player connected : {player.name}")
+        log(f"Player connected : '{player.name}'")
         self.connected.append(player)
 
     
@@ -55,7 +56,7 @@ class WebSocketServer():
             try:
                 event = WsEvent.from_json(message)
             except:
-                print(">>> Error with the json body")
+                log("Somehting wrong with JSON body")
                 continue
             
             if event.type == Events.CHAT_MESSAGE:
@@ -84,7 +85,7 @@ class WebSocketServer():
         try: # Check if room_id exist in data
             room_id = event.data["room_id"]
         except:
-            print(f">>> Event sent from player '{player.name}' is invalid :\n event")
+            log(f"Event sent from player '{player.name}' is invalid")
             await player.send_error('Sent event websocket package is invalid')
             return
         
@@ -133,15 +134,28 @@ class WebSocketServer():
 
         # Remove player from all joined rooms
         for room in joined_rooms:
-            print(f">>> Removing player '{player.name}' from room '{room.name}'")
+            log(f"Removing player '{player.name}' from room '{room.name}'")
             await room.remove_player(player)
             if room.player_list.__len__() == 0:
                 self.rooms.remove(room)
-        
-        print(f">>> Number of opened rooms : {self.rooms.__len__()}")
 
         del player
+    
+    async def handle_events(self, player: Player):
+        """ Handle events recieved by web clients
         
+        Keyword arguments:
+        websocket       -- websocket to communicate with web clients
+        player: Player  -- player's identity
+        Return: None
+        """
+        async for message in player.websocket:
+            try:
+                event = WsEvent.from_json(message)
+            except:
+                await player.send_error("Could not read event")
+
+        pass
 
 
     async def register(self, websocket):
@@ -193,3 +207,4 @@ class WebSocketServer():
             "room_id": room.id,
             "room_owner": room.owner.name
         } for room in self.rooms]
+    

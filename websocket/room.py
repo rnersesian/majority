@@ -2,6 +2,7 @@ from player import Player
 from ws_event import WsEvent, Events
 from typing import List
 import secrets, asyncio
+from utils import log
 
 
 class Room():
@@ -15,14 +16,14 @@ class Room():
 
 
     async def add_player(self, player: Player) -> None:
-        print(f">>> Adding player '{player.name}' to room '{self.name}'")
+        log(f"Adding player '{player.name}' to room '{self.name}'")
         try:
             self.player_list.append(player)
             await self.broadcast(
                 WsEvent(Events.REFRESH_PLAYER_LIST, {"player_list": self.player_list_json})
             )
         except Exception as e:
-            print(">>> ADD PLAYER ERROR :\n", e)
+            log("ADD PLAYER ERROR :\n", e)
             print(player)
 
     
@@ -39,7 +40,7 @@ class Room():
             for player in self.player_list:
                 asyncio.create_task(player.send(event.type, event.data))
         except Exception as e:
-            print(">>> BROADCAST ERROR :\n", e)
+            log("BROADCAST ERROR :\n", e)
 
 
     @property

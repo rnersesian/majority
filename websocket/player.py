@@ -1,5 +1,6 @@
 from ws_event import WsEvent, Events
 import secrets
+from utils import log
 
 class Player():
 
@@ -13,7 +14,7 @@ class Player():
         try:
             event = WsEvent(event_type=event_type, data=data).to_str
             await self.websocket.send(event)
-            print(f">>> Package sent to player '{self.name}' :\n{event}")
+            log(f"Package sent to player '{self.name}' :\n{event}")
         except Exception as e:
             print(e)
             print(f"ERROR : Could not send event to player :\n\t{self}")
@@ -23,7 +24,7 @@ class Player():
         try:
             event = WsEvent(event_type=Events.ERROR, data={"message": message}).to_str
             await self.websocket.send(event)
-            print(f">>> Error sent to player '{self.name}' : {message}")
+            log(f"Error sent to player '{self.name}' : {message}")
         except:
             print(f"ERROR : Could not send error event to player :\n\t{self}")
 
@@ -32,7 +33,7 @@ class Player():
         try:
             message = await self.websocket.recv()
             event = WsEvent.from_json(message)
-            print(f">>> Package recieved from player '{self.name}' :\n{event.to_str}")
+            log(f"Package recieved from player '{self.name}' :\n{event.to_str}")
             return event
         except:
             print(f"Coulnd't recieve event from player '{self.name}'")
