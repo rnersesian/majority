@@ -8,6 +8,7 @@ class Player():
         self.websocket = websocket
         self.name = player_name
         self.id = "player_" + secrets.token_urlsafe(12)
+        self.joined_room = None
 
 
     async def send(self, event_type: str, data: dict):
@@ -24,7 +25,7 @@ class Player():
         try:
             event = WsEvent(event_type=Events.ERROR, data={"message": message}).to_str
             await self.websocket.send(event)
-            log(f"Error sent to player '{self.name}' : {message}")
+            log(f"Error sent to player '{self.name}' :\n{message}")
         except:
             print(f"ERROR : Could not send error event to player :\n\t{self}")
 

@@ -51,82 +51,6 @@ class WebSocketServer():
             asyncio.create_task(player.send(event))
 
 
-    async def manage_room(self, room: Room, player: Player):
-        async for message in player.websocket:
-            try:
-                event = WsEvent.from_json(message)
-            except:
-                log("Somehting wrong with JSON body")
-                continue
-            
-            if event.type == Events.CHAT_MESSAGE:
-                room.broadcast(event)
-        
-
-    async def create_room(self, player: Player):
-        room = Room(player)
-        self.rooms.append(room)
-        await player.send(Events.CREATE_ROOM, {
-            "message": "Room created",
-            "room_name": room.name,
-            "room_id": room.id
-        })
-        await self.manage_room(room, player)
-
-    
-    async def join_room(self, player: Player, event: WsEvent):
-        """ Make a player join a room from with its ID
-        
-        Keyword arguments:
-        player : Player -- player object
-        room_id : str   -- id of the room
-        Return: None
-        """
-        try: # Check if room_id exist in data
-            room_id = event.data["room_id"]
-        except:
-            log(f"Event sent from player '{player.name}' is invalid")
-            await player.send_error('Sent event websocket package is invalid')
-            return
-        
-        try: # Check if room exists
-            room: Room = list(filter(lambda r: r.id == room_id, self.rooms))[0]
-        except IndexError:
-            await player.send_error(f"Room with ID {room_id} does not exist")
-            return
-
-        await room.add_player(player)
-        await self.manage_room(room, player)
-
-
-    async def show_rooms(self, player: Player):
-        """Send a list of available rooms to the user
-        
-        Keyword arguments:
-        websocket -- Websocket to send rooms to
-        Return: None
-        """
-        await player.send(Events.SHOW_ROOMS, {"rooms": self.room_list_json})
-
-        # Listening to client
-        async for message in player.websocket:
-            try:
-                event = WsEvent.from_json(message)
-
-                if event.type == Events.CREATE_ROOM:
-                    await self.create_room(player)
-                    continue
-
-                elif event.type == Events.JOIN_ROOM:
-                    # await player.send(Events.MESSAGE, {'message': 'You are joining a room'})
-                    await self.join_room(player, event)
-                    continue
-
-            except Exception as e:
-                print(e)
-                await player.send_error("Invalid Action")
-
-
     async def handle_disconnect(self, player):
         # Check if player has joined any room
         self.remove_connected(player)
@@ -140,6 +64,7 @@ class WebSocketServer():
                 self.rooms.remove(room)
 
         del player
+
     
     async def handle_events(self, player: Player):
         """ Handle events recieved by web clients
@@ -155,8 +80,33 @@ class WebSocketServer():
             except:
                 await player.send_error("Could not read event")
 
-        pass
+            try:
+                if event.type == Events.SHOW_ROOMS:
+                    await self.handle_get_room_list(player)
+                    continue
 
+                elif event.type == Events.CREATE_ROOM:
+                    await self.handle_create_room(player, event.data)
+                    continue
+
+                elif event.type == Events.JOIN_ROOM:
+                    await self.handle_join_room(player, event.data)
+                    continue
+
+                elif event.type == Events.REFRESH_PLAYER_LIST:
+                    await self.handle_refresh_player_list(player)
+                    continue
+
+                elif event.type == Events.CHAT_MESSAGE:
+                    await self.handle_chat_message(player, event.data)
+                    continue
+
+
+            except InvalidActionException:
+                log(f"Recieved invalid action from player <{player.name}> :\n", event)
+                await player.send_error("Invalid error")
+            except:
+                self.handle_disconnect(player)
 
     async def register(self, websocket):
         """Handle initial connection from user
@@ -179,16 +129,7 @@ class WebSocketServer():
                 player = Player(websocket, player_name)
                 self.add_connected(player)
 
-                await self.show_rooms(player)
-
-                await player.websocket.wait_closed()
-                await self.handle_disconnect(player)
-
-            if event.type == Events.SHOW_ROOMS:
-                player.send(Events.SHOW_ROOMS, {"rooms": self.room_list_json})
-
-            else:
-                await send_error(websocket, 'Recieved unhandled event type')
+                await self.handle_events(player)
 
     
     async def __run(self):
@@ -208,3 +149,83 @@ class WebSocketServer():
             "room_owner": room.owner.name
         } for room in self.rooms]
     
+
+    ###################
+    # Events Handlers #
+    ###################
+
+    async def handle_get_room_list(self, player: Player):
+        """Send list of room to a web client"""
+        await player.send(Events.SHOW_ROOMS, {"rooms": self.room_list_json})
+
+
+    async def handle_create_room(self, player: Player, data: dict):
+        """Create a new room"""
+        try:
+            room_name = data["room_name"] if "room_name" in data.keys() else None
+            new_room = Room(player, room_name)
+            await player.send(Events.CREATE_ROOM, {
+                "room_name": new_room.name,
+                "room_id": new_room.id,
+                "message": f"Room [{new_room.name}] is created"
+            })
+            self.rooms.append(new_room)
+            player.joined_room = new_room
+
+        except:
+            log("ERROR : Could not create room")
+            await player.send_error("Could not create room")
+    
+
+    async def handle_join_room(self, player: Player, data: dict):
+        """Join existing room"""
+        try:
+            room_id = data["room_id"]
+            room: Room = list(filter(lambda r: r.id == room_id, self.rooms))[0]
+            await room.add_player(player)
+            player.joined_room = room
+
+        except KeyError:
+            log("ERROR : Missing room_id field event data")
+        except IndexError:
+            await player.send_error(f"Room with ID {room_id} does not exist")
+        except:
+            log("ERROR : Could not join room")
+
+
+    async def handle_refresh_player_list(self, player: Player):
+        """Refresh list of player in a room"""
+        try:
+            if player.joined_room == None: raise Exception
+
+            await player.send(Events.REFRESH_PLAYER_LIST,
+                              {"player_list": player.joined_room.player_list_json})
+            
+        except:
+            log(f"ERROR: Could not refresh player list for player <{player.name}>")
+
+
+    async def handle_chat_message(self, player: Player, data: dict):
+        """Send a message from a player to its room"""
+        try:
+            if player.joined_room == None: raise Exception
+
+            if "message" in data.keys():
+                player.joined_room.broadcast(WsEvent(Events.CHAT_MESSAGE, data))
+            else:
+                raise KeyError
+            
+        except KeyError:
+            log("ERROR : Missing message field event data")
+        except:
+            log(f"Error when sending a message by player <{player.name}>")
+    
+
+
+
+#
+# Exceptions
+#
+
+class InvalidActionException(Exception):
+    pass
