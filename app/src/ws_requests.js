@@ -1,7 +1,5 @@
 export async function sendRequests(websocket, event_type, data)
 {
-    console.log("Sending request of type", event_type)
-    console.log(websocket)
     websocket.send(JSON.stringify({
         "type": event_type,
         "data" : data

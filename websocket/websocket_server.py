@@ -102,11 +102,16 @@ class WebSocketServer():
                     continue
 
 
+
             except InvalidActionException:
                 log(f"Recieved invalid action from player <{player.name}> :\n", event)
                 await player.send_error("Invalid error")
             except:
-                self.handle_disconnect(player)
+                await self.handle_disconnect(player)
+                return
+            
+        await self.handle_disconnect(player)
+            
 
     async def register(self, websocket):
         """Handle initial connection from user

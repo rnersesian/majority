@@ -25,12 +25,19 @@ const MultiQuizzPage = () =>
 
         websocket.addEventListener("message", (ws_event) => {
             let event = JSON.parse(ws_event.data)
-            console.log(event)
             switch (event.type)
             {
                 case WsEvents.SHOW_ROOMS:
                     setRooms(event.data.rooms)
                     break
+
+                case WsEvents.CREATE_ROOM:
+                    console.log(event.data)
+                    window.location.href = window.location + "?join=" + event.data.room_id
+                    break
+                
+                default:
+                    console.error("Recieved unhandled event",event.type)
             }
         })
 
@@ -72,7 +79,7 @@ const MultiQuizzPage = () =>
                 <InputText type="text" label="Room Name" id="room_name" value={roomName}
                 onChange={(event) => {setRoomName(event.target.value)}} />
                 <button className="submit-button" onClick={() =>{
-                    sendRequests(socketRef.current, WsEvents.CREATE_ROOM, {})
+                    sendRequests(socketRef.current, WsEvents.CREATE_ROOM, {"room_name": roomName})
                 }}>Create Room</button>
             </div>
             <h2>Rooms</h2>
