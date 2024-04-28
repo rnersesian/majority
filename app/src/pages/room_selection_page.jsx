@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react"
 import InputForm from "../components/input_form"
 import InputText from "../components/input_text"
 import { WsEvents, sendRequests} from "../ws_requests"
+import { useNavigate } from "react-router-dom"
 
 
-const MultiQuizzPage = () =>
+const RoomSelectPage = () =>
 {
     const [username, setUsername] = useState('')
     const [connected, setConnected] = useState(false)
@@ -12,6 +13,7 @@ const MultiQuizzPage = () =>
     const [roomName, setRoomName] = useState("")
     
     const socketRef = useRef(null)
+    const navigate = useNavigate()
 
 
     // Managing all Websocket event types
@@ -33,7 +35,7 @@ const MultiQuizzPage = () =>
 
                 case WsEvents.CREATE_ROOM:
                     console.log(event.data)
-                    window.location.href = window.location + "?join=" + event.data.room_id
+                    navigate("/room?join=" + event.data.room_id, {state: {"username": username}})
                     break
                 
                 default:
@@ -98,4 +100,4 @@ const MultiQuizzPage = () =>
 
     
 }
-export default MultiQuizzPage
+export default RoomSelectPage

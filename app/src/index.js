@@ -1,37 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './style/style.css';
-import MainPage from "./pages/main_page"
 import Navbar from './components/navbar'
 
 import reportWebVitals from './reportWebVitals';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, BrowserRouter, Route, Routes } from 'react-router-dom';
+
 import SignupPage from './pages/signup_page';
-import MultiPlayerQuizzPage from "./pages/multi_quizz_page"
-
-const router = createBrowserRouter([
-  {
-    path: "/solo",
-    element: <MainPage />,
-  },
-  {
-    path: "/signup",
-    element: <SignupPage/>
-  },
-  {
-    path: "/multi",
-    element: <MultiPlayerQuizzPage/>
-  }
-]);
-
+import RoomSelectPage from "./pages/room_selection_page"
+import MainPage from "./pages/main_page"
+import PlayRoomPage from './pages/play_room_page';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <>
-    <Navbar/>
-    
-    <RouterProvider router={router}/>
+    <BrowserRouter>
+      <Navbar/>
+      <Routes>
+        <Route path="/solo" element={<MainPage/>} />
+        <Route path="/lobbies" element={<RoomSelectPage/>} />
+        <Route path="/signup" element={<SignupPage/>} />
+        <Route path="/room" element={<PlayRoomPage/>} />
+      </Routes>
+    </BrowserRouter>
   </>
 );
 
