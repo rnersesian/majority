@@ -106,7 +106,8 @@ class WebSocketServer():
             except InvalidActionException:
                 log(f"Recieved invalid action from player <{player.name}> :\n", event)
                 await player.send_error("Invalid error")
-            except:
+            except Exception as e:
+                log(f"Something went wrong : ", e)
                 await self.handle_disconnect(player)
                 return
             
@@ -132,9 +133,7 @@ class WebSocketServer():
             if event.type == Events.CONNECT:
                 player_name = event["data"]["player_name"]
                 player = Player(websocket, player_name)
-                self.add_connected(player)
-
-                await self.handle_events(player)
+                await self.handle_connect(player)
 
     
     async def __run(self):
@@ -151,7 +150,7 @@ class WebSocketServer():
         return [{
             "room_name": room.name,
             "room_id": room.id,
-            "room_owner": room.owner.name
+            "room_owner": room.owner.name if room.owner is not None else ""
         } for room in self.rooms]
     
 
@@ -159,8 +158,16 @@ class WebSocketServer():
     # Events Handlers #
     ###################
 
+    async def handle_connect(self, player: Player):
+        """Handle initial connection from player"""
+        self.add_connected(player)
+        await player.send(Events.CONNECT_SUCCESS, {})
+        await self.handle_events(player)
+
+
     async def handle_get_room_list(self, player: Player):
         """Send list of room to a web client"""
+        print(self.room_list_json)
         await player.send(Events.SHOW_ROOMS, {"rooms": self.room_list_json})
 
 
@@ -175,7 +182,10 @@ class WebSocketServer():
                 "message": f"Room [{new_room.name}] is created"
             })
             self.rooms.append(new_room)
-            player.joined_room = new_room
+            print("Opened Rooms: ")
+
+            for room_name in [r.name for r in self.rooms]:
+                print(f"\t- {room_name}")
 
         except:
             log("ERROR : Could not create room")

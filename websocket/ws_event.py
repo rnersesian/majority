@@ -57,6 +57,7 @@ async def send_event(websocket, event_type, data):
 # List of events
 class Events():
     CONNECT             = "connect"
+    CONNECT_SUCCESS     = "connect_success"
     MESSAGE             = "message"
     SHOW_ROOMS          = "show_rooms"
     CREATE_ROOM         = "create_room"
