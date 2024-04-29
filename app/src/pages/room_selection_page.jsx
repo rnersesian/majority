@@ -35,6 +35,7 @@ const RoomSelectPage = () =>
 
                 case WsEvents.CREATE_ROOM:
                     console.log(event.data)
+                    socketRef.current.close()
                     navigate("/room?join=" + event.data.room_id, {state: {"username": username}})
                     break
                 

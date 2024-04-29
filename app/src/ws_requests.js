@@ -9,6 +9,7 @@ export async function sendRequests(websocket, event_type, data)
 
 export let WsEvents = {
     CONNECT             : "connect",
+    CONNECT_SUCCESS     : "connect_success",
     MESSAGE             : "message",
     SHOW_ROOMS          : "show_rooms",
     CREATE_ROOM         : "create_room",
