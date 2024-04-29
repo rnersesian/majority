@@ -35,9 +35,12 @@ class Room():
         replaceOwner = True if player == self.owner and self.player_list.__len__() > 1 else False
         self.player_list = list(filter(lambda x: x.id != player.id, self.player_list))
 
-        if replaceOwner: # If owner is replaced then there are still players in the room
+        if replaceOwner:
+            self.owner = self.player_list[0]
+
+        if self.player_list.__len__() > 0: # If owner is replaced then there are still players in the room
             await self.broadcast(
-                WsEvent(Events.REFRESH_PLAYER_LIST,{"player_list", self.player_list_json})
+                WsEvent(Events.REFRESH_PLAYER_LIST,{"player_list": self.player_list_json})
             )
 
 

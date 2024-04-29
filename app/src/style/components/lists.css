@@ -1,0 +1,7 @@
+table.room-list {
+    width: 100%;
+}
+
+table.room-list th,td {
+    text-align: left;
+}

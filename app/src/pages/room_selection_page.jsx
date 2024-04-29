@@ -38,6 +38,11 @@ const RoomSelectPage = () =>
                     socketRef.current.close()
                     navigate("/room?join=" + event.data.room_id, {state: {"username": username}})
                     break
+
+                case WsEvents.CONNECT_SUCCESS:
+                    sendRequests(socketRef.current, WsEvents.SHOW_ROOMS, {})
+                    break
+                
                 
                 default:
                     console.error("Recieved unhandled event",event.type)
@@ -76,7 +81,7 @@ const RoomSelectPage = () =>
     } 
 
     return (
-        <div className="main-content">
+        <div className="content_center">
             <h3>User : {username}</h3>
             <div>
                 <InputText type="text" label="Room Name" id="room_name" value={roomName}
@@ -88,9 +93,21 @@ const RoomSelectPage = () =>
             <h2>Rooms</h2>
             {rooms.length === 0 ?
                 <div>No Available room</div> :
-                <ul>
-                    {rooms.map(r => {return <li>{r.room_name}</li>})}
-                </ul>
+                <table className="room-list">
+                    <tr>
+                        <th>Owner</th>
+                        <th>Room Name</th>
+                        <th>Join</th>
+                    </tr>
+                    {rooms.map(r => {return <tr>
+                        <td>{r.room_owner}</td>
+                        <td>{r.room_name}</td>
+                        <td><button onClick={() => {
+                            socketRef.current.close()
+                            navigate("/room?join=" + r.room_id, {state: {"username": username}})
+                        }}>Join</button></td>
+                    </tr>})}
+                </table>
             }
 
                 <button className="submit-button" onClick={() =>{

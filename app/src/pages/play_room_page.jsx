@@ -11,6 +11,7 @@ const PlayRoomPage = () => {
     const location = useLocation();
     const [username, setUsername] = useState(location.state !== null && location.state.username ? location.state.username : "")
     const [connected, setConnected] = useState(username !== "")
+    const [players, setPlayers] = useState([])
     const socketRef = useRef(null)
     const urlParams = new URLSearchParams(window.location.search)
     const room_id = urlParams.get("join")
@@ -45,8 +46,13 @@ const PlayRoomPage = () => {
                         break
 
                     case WsEvents.REFRESH_PLAYER_LIST:
-                        console.log(event.data)
+                        console.log("Refreshing player list")
+                        setPlayers(event.data.player_list)
                         break
+
+                    case WsEvents.ERROR:
+                        alert(event.data.message || "")
+                        window.location.href = "/lobbies"
                     
                     default:
                         console.error("Recieved unhandled event",event.type)
@@ -70,12 +76,24 @@ const PlayRoomPage = () => {
             
         )
     }
-
+    console.log(players)
     return(
-        <div>
-            {/* {location.state.username || ""} */}
-            <h1>{username}</h1>
-            hey
+        <div className="lobby-page">
+            <div className="left-panel">
+                <div id="player-list">
+                    {
+                        players.length > 0 &&
+                        players.map(pl => {
+                            return(
+                                <div>{pl.player_name}</div>
+                            )
+                        })
+                    }
+                </div>
+            </div>
+            <div className="main-panel">
+                main panel
+            </div>
         </div>
     )
 }

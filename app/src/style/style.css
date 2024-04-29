@@ -3,6 +3,11 @@
 @import url('components/input_text.css');
 @import url('components/input_form.css');
 @import url('components/buttons.css');
+@import url('components/lists.css');
+
+
+/* Pages */
+@import url('pages/lobby.css');
 
 
 
