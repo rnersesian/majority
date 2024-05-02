@@ -12,6 +12,8 @@ const PlayRoomPage = () => {
     const [username, setUsername] = useState(location.state !== null && location.state.username ? location.state.username : "")
     const [connected, setConnected] = useState(username !== "")
     const [players, setPlayers] = useState([])
+    const [message, setMessage] = useState("")
+
     const socketRef = useRef(null)
     const urlParams = new URLSearchParams(window.location.search)
     const room_id = urlParams.get("join")
@@ -91,11 +93,203 @@ const PlayRoomPage = () => {
                     }
                 </div>
             </div>
-            <div className="main-panel">
-                main panel
+            <div className="game-panel">
+                <div className="top-side">
+                <div className="chat-box">
+                    {messages.map(message => {
+                        return (
+                        <div className="message">
+                            <div className="user">{message.username}</div>
+                            <div className="content">{message.content}</div>
+                        </div>
+                        )
+                    })}
+                </div>
+                </div>
+                <div className="bottom-side" style={{alignItems: "center", flexDirection: "row", justifyContent: "space-between"}}>
+                    <textarea value={message} name="" id="" cols="1" style={{width: "90%", height: "20px", float: "left", marginLeft: "20px", resize: "none", border: "none", backgroundColor: "lightgrey"}}
+                    onChange={(event) => alert(event.target.value)}></textarea>
+                    <button  style={{float: "right", marginRight: "20px"}}>Send</button>
+                </div>
             </div>
         </div>
     )
 }
 
 export default PlayRoomPage
+
+
+const messages = [
+    {
+      username: "Alice",
+      content: "Hey there! How's it going?"
+    },
+    {
+      username: "Bob",
+      content: "Not bad, just working on some code."
+    },
+    {
+      username: "Charlie",
+      content: "Anyone up for a game of chess?"
+    },
+    {
+      username: "David",
+      content: "I'm down for chess!"
+    },
+    {
+      username: "Eve",
+      content: "What's everyone's plans for the weekend?"
+    },
+    {
+      username: "Frank",
+      content: "I'm thinking of going hiking."
+    },
+    {
+      username: "Grace",
+      content: "I'll join you, Frank. Hiking sounds fun!"
+    },
+    {
+      username: "Hannah",
+      content: "Count me in too! I need some fresh air."
+    },
+    {
+      username: "Isaac",
+      content: "I'm stuck with this bug. Can anyone help?"
+    },
+    {
+      username: "Jack",
+      content: "Sure, Isaac. What seems to be the problem?"
+    },
+    {
+      username: "Kelly",
+      content: "Just finished a great book, any recommendations?"
+    },
+    {
+      username: "Liam",
+      content: "I'm working on a new project, it's pretty exciting!"
+    },
+    {
+      username: "Mia",
+      content: "Does anyone want to grab coffee later?"
+    },
+    {
+      username: "Nora",
+      content: "I need advice on choosing a new laptop, any suggestions?"
+    },
+    {
+      username: "Oliver",
+      content: "Hey everyone, what's the latest gossip?"
+    },
+    {
+      username: "Bob",
+      content: "Not bad, just working on some code."
+    },
+    {
+      username: "Charlie",
+      content: "Anyone up for a game of chess?"
+    },
+    {
+      username: "David",
+      content: "I'm down for chess!"
+    },
+    {
+      username: "Eve",
+      content: "What's everyone's plans for the weekend?"
+    },
+    {
+      username: "Frank",
+      content: "I'm thinking of going hiking."
+    },
+    {
+      username: "Grace",
+      content: "I'll join you, Frank. Hiking sounds fun!"
+    },
+    {
+      username: "Hannah",
+      content: "Count me in too! I need some fresh air."
+    },
+    {
+      username: "Isaac",
+      content: "I'm stuck with this bug. Can anyone help?"
+    },
+    {
+      username: "Jack",
+      content: "Sure, Isaac. What seems to be the problem?"
+    },
+    {
+      username: "Kelly",
+      content: "Just finished a great book, any recommendations?"
+    },
+    {
+      username: "Liam",
+      content: "I'm working on a new project, it's pretty exciting!"
+    },
+    {
+      username: "Mia",
+      content: "Does anyone want to grab coffee later?"
+    },
+    {
+      username: "Nora",
+      content: "I need advice on choosing a new laptop, any suggestions?"
+    },
+    {
+      username: "Oliver",
+      content: "Hey everyone, what's the latest gossip?"
+    },
+    {
+      username: "Bob",
+      content: "Not bad, just working on some code."
+    },
+    {
+      username: "Charlie",
+      content: "Anyone up for a game of chess?"
+    },
+    {
+      username: "David",
+      content: "I'm down for chess!"
+    },
+    {
+      username: "Eve",
+      content: "What's everyone's plans for the weekend?"
+    },
+    {
+      username: "Frank",
+      content: "I'm thinking of going hiking."
+    },
+    {
+      username: "Grace",
+      content: "I'll join you, Frank. Hiking sounds fun!"
+    },
+    {
+      username: "Hannah",
+      content: "Count me in too! I need some fresh air."
+    },
+    {
+      username: "Isaac",
+      content: "I'm stuck with this bug. Can anyone help?"
+    },
+    {
+      username: "Jack",
+      content: "Sure, Isaac. What seems to be the problem?"
+    },
+    {
+      username: "Kelly",
+      content: "Just finished a great book, any recommendations?"
+    },
+    {
+      username: "Liam",
+      content: "I'm working on a new project, it's pretty exciting!"
+    },
+    {
+      username: "Mia",
+      content: "Does anyone want to grab coffee later?"
+    },
+    {
+      username: "Nora",
+      content: "I need advice on choosing a new laptop, any suggestions?"
+    },
+    {
+      username: "Oliver",
+      content: "Hey everyone, what's the latest gossip?"
+    }
+  ];

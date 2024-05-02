@@ -18,7 +18,6 @@ root.render(
     <BrowserRouter>
       <Navbar/>
       <Routes>
-        <Route path="/solo" element={<MainPage/>} />
         <Route path="/lobbies" element={<RoomSelectPage/>} />
         <Route path="/signup" element={<SignupPage/>} />
         <Route path="/room" element={<PlayRoomPage/>} />
