@@ -182,10 +182,6 @@ class WebSocketServer():
                 "message": f"Room [{new_room.name}] is created"
             })
             self.rooms.append(new_room)
-            print("Opened Rooms: ")
-
-            for room_name in [r.name for r in self.rooms]:
-                print(f"\t- {room_name}")
 
         except:
             log("ERROR : Could not create room")

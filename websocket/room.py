@@ -16,13 +16,11 @@ class Room():
 
 
     async def add_player(self, player: Player) -> None:
-        log(f"Adding player '{player.name}' to room '{self.name}, Current players :'")
+        """Add a player to the room"""
         if self.player_list.__len__() == 0: # Making the added player Owner if room is empty
             self.owner = player
         try:
             self.player_list.append(player)
-            for player_name in [pl.name for pl in self.player_list]:
-                print(f"\t- {player_name}")
             await self.broadcast(
                 WsEvent(Events.REFRESH_PLAYER_LIST, {"player_list": self.player_list_json})
             )
@@ -32,10 +30,11 @@ class Room():
 
     
     async def remove_player(self, player: Player) -> None:
+        """Remove a player from the room"""
         replaceOwner = True if player == self.owner and self.player_list.__len__() > 1 else False
         self.player_list = list(filter(lambda x: x.id != player.id, self.player_list))
 
-        if replaceOwner:
+        if replaceOwner: # Check if the owner left the game
             self.owner = self.player_list[0]
 
         if self.player_list.__len__() > 0: # If owner is replaced then there are still players in the room
@@ -45,6 +44,7 @@ class Room():
 
 
     async def broadcast(self, event: WsEvent):
+        """Send an event to players in the room"""
         try:
             for player in self.player_list:
                 asyncio.create_task(player.send(event.type, event.data))
