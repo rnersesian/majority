@@ -20,7 +20,7 @@ class WsEvent(dict):
 
 
     @classmethod
-    def from_json(self, json_data):
+    def from_json(cls, json_data):
         
         # Ensure json_data is not a string decoded JSON
         if isinstance(json_data, str):

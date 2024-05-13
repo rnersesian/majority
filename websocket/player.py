@@ -1,6 +1,7 @@
 from ws_event import WsEvent, Events
 import secrets
 from utils import log
+from typing import Any
 
 class Player():
 
@@ -8,7 +9,7 @@ class Player():
         self.websocket = websocket
         self.name = player_name
         self.id = "player_" + secrets.token_urlsafe(12)
-        self.joined_room = None
+        self.joined_room: Any = None
 
 
     async def send(self, event_type: str, data: dict):
@@ -30,10 +31,12 @@ class Player():
             print(f"ERROR : Could not send error event to player :\n\t{self}")
 
 
-    async def recv(self) -> WsEvent:
+    async def recv(self) -> WsEvent | None:
         try:
             message = await self.websocket.recv()
             event = WsEvent.from_json(message)
+
+            assert event is not None
             log(f"Package recieved from player '{self.name}' :\n{event.to_str}")
             return event
         except:

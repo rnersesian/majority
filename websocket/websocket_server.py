@@ -48,7 +48,7 @@ class WebSocketServer():
         """
         
         for player in player_list:
-            asyncio.create_task(player.send(event))
+            asyncio.create_task(player.send(event.type, event.data))
 
 
     async def handle_disconnect(self, player):
@@ -79,8 +79,11 @@ class WebSocketServer():
                 event = WsEvent.from_json(message)
             except:
                 await player.send_error("Could not read event")
+                continue
 
             try:
+                
+                assert event is not None
                 if event.type == Events.SHOW_ROOMS:
                     await self.handle_get_room_list(player)
                     continue
@@ -124,16 +127,18 @@ class WebSocketServer():
         async for message in websocket:
             try:
                 event = WsEvent.from_json(message)
+                assert event is not None
+
+                if event.type == Events.CONNECT:
+                    player_name = event["data"]["player_name"]
+                    player = Player(websocket, player_name)
+                    await self.handle_connect(player)
 
             except Exception as e:
                 print("CONNECTION ERROR :", e)
                 await send_error(websocket, 'Something went wrong')
                 continue
             
-            if event.type == Events.CONNECT:
-                player_name = event["data"]["player_name"]
-                player = Player(websocket, player_name)
-                await self.handle_connect(player)
 
     
     async def __run(self):
@@ -199,7 +204,7 @@ class WebSocketServer():
         except KeyError:
             log("ERROR : Missing room_id field event data")
         except IndexError:
-            await player.send_error(f"Room with ID {room_id} does not exist")
+            await player.send_error(f"Room does not exist")
         except:
             log("ERROR : Could not join room")
 
