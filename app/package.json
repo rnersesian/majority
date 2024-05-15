@@ -8,12 +8,15 @@
     "version": "vinxi version"
   },
   "dependencies": {
+    "@solid-primitives/websocket": "^1.2.2",
     "@solidjs/meta": "^0.29.3",
     "@solidjs/router": "^0.13.3",
     "@solidjs/start": "^1.0.0-rc.1",
+    "@types/ws": "^8.5.10",
     "js-cookie": "^3.0.5",
     "solid-js": "^1.8.17",
-    "vinxi": "^0.3.11"
+    "vinxi": "^0.3.11",
+    "ws": "^8.17.0"
   },
   "engines": {
     "node": ">=18"
