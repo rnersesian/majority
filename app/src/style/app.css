@@ -1,0 +1,43 @@
+@import 'text_layout.css';
+
+
+
+#app {
+  height: inherit;
+  display: grid;
+  grid-template-rows: 50px auto
+}
+
+html,body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #E5EAEC;
+}
+
+
+/* NAVBAR */
+#top-navbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0,max-content));
+  background: #003448;
+}
+
+#top-navbar a {
+  padding: 5px 10px 5px 10px;
+  text-align: center;
+  text-decoration: None;
+  color: white;
+  display:flex;
+  align-items: center;
+}
+
+#top-navbar a:hover {
+  background: #19485a;
+  transition-duration: 0.2s;
+  color: lightgrey;
+}
+/* NAVBAR */
+
+
+

@@ -1,0 +1,28 @@
+div.form-input label {
+  font-weight: bold;
+  font-size: 16px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
+
+div.form-input {
+  display: grid;
+  width: 300px;
+  padding: 5px 10px 5px 10px;
+}
+
+div.form-input input {
+  height: 30px;
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+}
+
+button.submit {
+  width: fit-content;
+  padding: 5px 10px 5px 10px;
+  background: lightgreen;
+  border: none;
+  cursor: pointer;
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+}
