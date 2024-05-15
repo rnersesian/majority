@@ -1,0 +1,24 @@
+.tspacing-s {
+  margin-top: 20px;
+}
+
+.tspacing-m {
+  margin-top: 50px;
+}
+
+.tspacing-x {
+  margin-top: 100px;
+}
+
+.bspacing-s {
+  margin-bottom: 20px;
+}
+
+.bspacing-m {
+  margin-bottom: 50px;
+}
+
+.bspacing-x {
+  margin-bottom: 100px;
+}
+

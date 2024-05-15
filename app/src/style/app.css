@@ -1,5 +1,6 @@
 @import 'text_layout.css';
-
+@import 'utilities.css';
+@import 'page_layout.css';
 
 
 #app {
@@ -13,6 +14,11 @@ html,body {
   margin: 0;
   padding: 0;
   background: #E5EAEC;
+  font-family: system-ui;
+}
+
+main {
+  display: grid;
 }
 
 
